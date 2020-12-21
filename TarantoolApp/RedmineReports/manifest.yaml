@@ -1,0 +1,23 @@
+requirements:
+  - RedmineCredentials
+  - RedmineUsers
+  - RedmineProjects
+  - Users
+  - CurrencyConversionInfo
+imports:
+  private:
+    files:
+      - "_private/"
+  report_genertor:
+    globals_visible: unit
+    iproto_visible: all
+    preloaded_data:
+      report_template:
+        type: file
+        file: report.template
+    files:
+      - report_generator.lua
+  api:
+    iproto_visible: all
+    files:
+      - api.lua

@@ -1,0 +1,8 @@
+.idea
+.build/
+docker-compose.default.yaml
+docker-compose.debug.yaml
+DB/MemTX
+DB/admin.sock1
+DB/WAL
+DB/Vinyl

@@ -1,0 +1,14 @@
+requirements:
+  - Users
+imports:
+  private:
+    files:
+      - "_private/"
+  open:
+    globals_visible: global
+    files:
+      - RedmineConnector.lua
+  api:
+    iproto_visible: all
+    files:
+      - api.lua

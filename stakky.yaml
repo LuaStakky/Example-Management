@@ -1,0 +1,26 @@
+stakky_debug: false
+debug: false
+domain: '*'
+services:
+  Nginx:
+    net:
+      http_port: 80
+      https_port: 443
+    worker_processes: 12
+    worker_connections: 8192
+    keepalive_timeout: 75
+    limit_rps:
+      /:
+        rps: 10
+        burst: 20
+        delay: nodelay
+        type: ip
+        mem: 10m
+    security:
+      allow_http: true
+      allow_https: false
+      #ssl_certificates_file: Certificates
+      #ssl_session_cache: 10
+  Tarantool:
+    apptype: advanced
+    main: manifest.yaml

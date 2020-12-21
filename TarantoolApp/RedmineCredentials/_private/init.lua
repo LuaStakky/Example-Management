@@ -1,0 +1,13 @@
+box.once("RedmineCredentials.schema",function()
+  RedmineCredentials=box.schema.space.create('RedmineCredentials',{engine="vinyl",format={
+    {name='ID',type='unsigned'},
+    {name='OwnerID',type='unsigned'},
+    {name='Url',type='string'},
+    {name='Login',type='string'},
+    {name='Password',type='string'},
+  }})
+  box.schema.sequence.create('RedmineCredentialsSeq')
+  RedmineCredentials:create_index('primary',{unique=true,parts={{1,"unsigned"}},sequence='RedmineCredentialsSeq'})
+  RedmineCredentials:create_index('Credentials',{unique=true,parts={{2,"unsigned"},{3,"string"},{4,"string"}}})
+  RedmineCredentials:create_index('Owner',{unique=false,parts={{2,"unsigned"}}})
+end)

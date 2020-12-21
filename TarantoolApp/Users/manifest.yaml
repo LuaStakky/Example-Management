@@ -1,0 +1,29 @@
+#requirements:
+#  -
+imports:
+  #defult:
+  #  iproto_visible: none
+  #  globals_visible: file
+  #  files: # mandatory part
+  #    - ...
+  crypto:
+    iproto_visible: none # all, none or admin default is none
+    globals_visible: unit # file, unit, global default is file
+    files:
+      - crypto.lua
+  private:
+    files:
+      - "_private/"
+  _api:
+    globals_visible: global
+    files:
+      - _api.lua
+  #admin:
+  #  iproto_visible: admin
+  #  iproto_prefix: ''
+  #  files:
+  #    - admin/
+  api:
+    iproto_visible: all
+    files:
+      - api.lua

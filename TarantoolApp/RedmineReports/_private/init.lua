@@ -1,0 +1,11 @@
+box.once("RedmineReports.schema",function()
+  RedmineReports=box.schema.space.create('RedmineReports',{engine="vinyl",format={
+    {name='ID',type='unsigned'},
+    {name='ProjectID',type='unsigned'},
+    {name='Date',type='unsigned'},
+    {name='Data',type='string'},
+  }})
+  box.schema.sequence.create('RedmineReportsSeq')
+  RedmineReports:create_index('primary',{unique=true,parts={{1,"unsigned"}},sequence='RedmineReportsSeq'})
+  RedmineReports:create_index('RedmineProjectID',{unique=false,parts={{2,"unsigned"},{3,"unsigned"}}})
+end)

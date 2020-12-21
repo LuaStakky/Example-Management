@@ -1,0 +1,12 @@
+requirements:
+  - RedmineCredentials
+  - RedmineProjects
+  - Users
+imports:
+  private:
+    files:
+      - "_private/"
+  api:
+    iproto_visible: all
+    files:
+      - api.lua

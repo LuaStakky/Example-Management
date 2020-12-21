@@ -1,0 +1,12 @@
+box.once("RedmineProjects.schema",function()
+  RedmineProjects=box.schema.space.create('RedmineProjects',{engine="vinyl",format={
+    {name='ID',type='unsigned'},
+    {name='Credentials',type='unsigned'},
+    {name='RedmineID',type='unsigned'},
+    {name='WasRemovedFromRedmine',type='boolean'},
+  }})
+  box.schema.sequence.create('RedmineProjectsSeq')
+  RedmineProjects:create_index('primary',{unique=true,parts={{1,"unsigned"}},sequence='RedmineProjectsSeq'})
+  RedmineProjects:create_index('Credentials',{unique=false,parts={{2,"unsigned"}}})
+  RedmineProjects:create_index('RedmineID',{unique=true,parts={{2,"unsigned"},{3,"unsigned"}}})
+end)

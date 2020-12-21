@@ -1,0 +1,13 @@
+units:
+  Users:
+    sub_manifest: "manifest.yaml" # you can use sub_manifest to load config part from file
+  RedmineCredentials:
+    sub_manifest: "manifest.yaml"
+  RedmineProjects:
+    sub_manifest: "manifest.yaml"
+  RedmineUsers:
+    sub_manifest: "manifest.yaml"
+  RedmineReports:
+    sub_manifest: "manifest.yaml"
+  CurrencyConversionInfo:
+    sub_manifest: "manifest.yaml"

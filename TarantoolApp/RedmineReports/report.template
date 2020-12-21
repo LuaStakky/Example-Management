@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8"/>
+    <style>.container{margin-top: 10px;}</style>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <div class="navbar-brand">Report from <%=os.date("%x %X")%></div>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item active">
+            <span class="nav-link">Default hours per issue: <%-Defaults.HoursPerIssue%></span>
+          </li>
+          <li class="nav-item active">
+            <span class="nav-link">Default hourly payment: <%-Defaults.HourlyPayment%> <%-Defaults.PaymentCurrency%></span>
+          </li>
+          <li class="nav-item active">
+            <span class="nav-link"></span>
+          </li>
+          <li class="nav-item active">
+            <span class="nav-link"></span>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <%TotalSalary=0%>
+    <%TotalWorkedSalary=0%>
+    <div id="accordion" role="tablist">
+      <%for WorkerID,Issues in pairs(IssuesByWorker) do%>
+      <%if WorkerID~=-1 then%>
+      <div class="card my-1 mx-1">
+        <div class="card-header" role="tab" id="Heading<%-WorkerID%>">
+          <h5 class="mb-0">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapse<%-WorkerID%>" aria-expanded="true" aria-controls="collapse1"><%-Workers[WorkerID].Name%></a>
+          </h5>
+        </div>
+        <div id="collapse<%-WorkerID%>" class="collapse" role="tabpanel" aria-labelledby="Heading<%-WorkerID%>">
+          <div class="card-body">
+            <%TotalHours=0%>
+            <%TotalWorkedHours=0%>
+            <%if not Workers[WorkerID].SalaryPerHour then%>
+            <div class="alert alert-warning" role="alert">Undefined SalaryPerHour!</div>
+            <%end%>
+            <%for IssueNum,Issue in pairs(Issues) do%>
+            <div class="card my-1 mx-1">
+              <div class="card-header" role="tab" id="SubHeading<%-WorkerID%>-<%-IssueNum%>">
+                <h5 class="mb-0">
+                  <a data-toggle="collapse" data-parent="#accordion" href="#SubCollapse<%-WorkerID%>-<%-IssueNum%>" aria-expanded="true" aria-controls="collapse1"><%-Issue.subject%></a>
+                </h5>
+              </div>
+              <div id="SubCollapse<%-WorkerID%>-<%-IssueNum%>" class="collapse" role="tabpanel" aria-labelledby="SubHeading<%-WorkerID%>-<%-IssueNum%>">
+                <div class="card-body">
+                  <p>Issue status: <%-Issue.status.name%> <%if Issue.closed_on~=json.NULL then%>(closed)<%end%></p>
+                  <%DoneRatio=Issue.closed_on~=json.NULL and 1 or Issue.done_ratio/100%>
+                  <%if Issue.estimated_hours~=json.NULL or not TimeEntriesByIssue[Issue.id] then%>
+                    <%CurrentHours=Issue.estimated_hours~=json.NULL and Issue.estimated_hours or Defaults.HoursPerIssue%>
+                    <p>Hours (counted by issue estimated hours): <%-CurrentHours%></p>
+                  <%else%>
+                    <%CurrentHours=0%><%DoneRatio=1%><h3>Time entries:</h3>
+                    <table class="table">
+                      <thead><tr>
+                        <th scope="col">Added by</th>
+                        <th scope="col">Activity</th>
+                        <th scope="col">Comments</th>
+                        <th scope="col">Hours</th>
+                        <th scope="col">Created time</th>
+                      </tr></thead>
+                      <tbody>
+                        <%for _,Entry in pairs(TimeEntriesByIssue[Issue.id]) do%>
+                        <tr>
+                          <%CurrentHours=CurrentHours+Entry.hours%>
+                          <td><%-Entry.user.name%></td>
+                          <td><%-Entry.activity.name%></td>
+                          <td><%-Entry.comments%></td>
+                          <td><%-Entry.hours%></td>
+                          <td><%-Entry.created_on%></td>
+                        </tr>
+                        <%end%>
+                      </tbody>
+                    </table>
+                    <p>Hours: <%-CurrentHours%></p>
+                  <%end%>
+                  <%TotalHours=TotalHours+CurrentHours%>
+                  <%TotalWorkedHours=TotalWorkedHours+CurrentHours*DoneRatio%>
+                  <p>Of these hours worked: <%-CurrentHours*DoneRatio%></p>
+                </div>
+              </div>
+            </div>
+            <%end%>
+            <%WorkerCurrency=Workers[WorkerID].SalaryPerHourCurrency or Defaults.PaymentCurrency%>
+            <%WorkerPayment=Workers[WorkerID].SalaryPerHour or Defaults.HourlyPayment%>
+            <%WorkerPaymentInResultCurrency=WorkerPayment/CurrencyConversions[WorkerCurrency]%>
+            <p>Salary per hour: <%-round(WorkerPayment)%> <%-WorkerCurrency%></p>
+            <%if WorkerCurrency~=ResultCurrency then%>
+              <p>Salary per hour (in <%-ResultCurrency%>): <%-round(WorkerPaymentInResultCurrency)%> <%-ResultCurrency%></p>
+            <%end%>
+            <p>Total hours: <%-TotalHours%></p>
+            <p>Total worked hours: <%-TotalWorkedHours%></p>
+            <p>Total salary: <%-round(WorkerPayment*TotalHours)%> <%-WorkerCurrency%></p>
+            <p>Total worked salary: <%-round(WorkerPayment*TotalWorkedHours)%> <%-WorkerCurrency%></p>
+            <%if WorkerCurrency~=ResultCurrency then%>
+              <p>Total salary (in <%-ResultCurrency%>): <%-round(WorkerPaymentInResultCurrency*TotalHours)%> <%-ResultCurrency%></p>
+              <p>Total worked salary (in <%-ResultCurrency%>): <%-round(WorkerPaymentInResultCurrency*TotalWorkedHours)%> <%-ResultCurrency%></p>
+            <%end%>
+            <%TotalSalary=TotalSalary+WorkerPaymentInResultCurrency*TotalHours%>
+            <%TotalWorkedSalary=TotalWorkedSalary+WorkerPaymentInResultCurrency*TotalWorkedHours%>
+          </div>
+        </div>
+      </div>
+      <%end%>
+      <%end%>
+      <%if IssuesByWorker[-1] then%>
+      <div class="card my-1 mx-1">
+        <div class="card-header" role="tab" id="Heading">
+          <h5 class="mb-0">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapse" aria-expanded="true" aria-controls="collapse1">Without worker</a>
+          </h5>
+        </div>
+        <div id="collapse" class="collapse" role="tabpanel" aria-labelledby="Heading">
+          <div class="card-body">
+            <div class="alert alert-warning" role="alert">Undefined Worker!</div>
+            <%TotalHours=0%>
+            <%TotalWorkedHours=0%>
+            <%for IssueNum,Issue in pairs(IssuesByWorker[-1]) do%>
+            <div class="card my-1 mx-1">
+              <div class="card-header" role="tab" id="SubHeading-1-<%-IssueNum%>">
+                <h5 class="mb-0">
+                  <a data-toggle="collapse" data-parent="#accordion" href="#SubCollapse-1-<%-IssueNum%>" aria-expanded="true" aria-controls="collapse1"><%-Issue.subject%></a>
+                </h5>
+              </div>
+              <div id="SubCollapse-1-<%-IssueNum%>" class="collapse" role="tabpanel" aria-labelledby="SubHeading-1-<%-IssueNum%>">
+                <div class="card-body">
+                  <p>Issue status: <%-Issue.status.name%> <%if Issue.closed_on~=json.NULL then%>(closed)<%end%></p>
+                  <%DoneRatio=Issue.closed_on~=json.NULL and 1 or Issue.done_ratio/100%>
+                  <%if Issue.estimated_hours~=json.NULL or not TimeEntriesByIssue[Issue.id] then%>
+                    <%CurrentHours=Issue.estimated_hours~=json.NULL and Issue.estimated_hours or Defaults.HoursPerIssue%>
+                    <%TotalHours=TotalHours+CurrentHours%>
+                    <p>Hours (counted by issue estimated hours): <%-CurrentHours%></p>
+                  <%else%>
+                    <%CurrentHours=0%><%DoneRatio=1%><h3>Time entries:</h3>
+                    <table class="table">
+                      <thead><tr>
+                        <th scope="col">Added by</th>
+                        <th scope="col">Activity</th>
+                        <th scope="col">Comments</th>
+                        <th scope="col">Hours</th>
+                        <th scope="col">Created time</th>
+                      </tr></thead>
+                      <tbody>
+                        <%for _,Entry in pairs(TimeEntriesByIssue[Issue.id]) do%>
+                        <tr>
+                          <%CurrentHours=CurrentHours+Entry.hours%>
+                          <td><%-Entry.user.name%></td>
+                          <td><%-Entry.activity.name%></td>
+                          <td><%-Entry.comments%></td>
+                          <td><%-Entry.hours%></td>
+                          <td><%-Entry.created_on%></td>
+                        </tr>
+                        <%end%>
+                      </tbody>
+                    </table>
+                    <p>Hours: <%-CurrentHours%></p>
+                  <%end%>
+                  <%TotalWorkedHours=TotalWorkedHours+CurrentHours*DoneRatio%>
+                  <p>Of these hours worked: <%-CurrentHours*DoneRatio%></p>
+                </div>
+              </div>
+            </div>
+            <%end%>
+            <%WorkerPaymentInResultCurrency=Defaults.HourlyPayment/CurrencyConversions[Defaults.PaymentCurrency]%>
+            <p>Salary per hour: <%-round(Defaults.HourlyPayment)%> <%-Defaults.PaymentCurrency%></p>
+            <%if Defaults.PaymentCurrency~=ResultCurrency then%>
+              <p>Salary per hour (in <%-ResultCurrency%>): <%-round(WorkerPaymentInResultCurrency)%> <%-ResultCurrency%></p>
+            <%end%>
+            <p>Total hours: <%-TotalHours%></p>
+            <p>Total worked hours: <%-TotalWorkedHours%></p>
+            <p>Total salary: <%-round(Defaults.HourlyPayment*TotalHours)%> <%-Defaults.PaymentCurrency%></p>
+            <p>Total worked salary: <%-round(Defaults.HourlyPayment*TotalWorkedHours)%> <%-Defaults.PaymentCurrency%></p>
+            <%if Defaults.PaymentCurrency~=ResultCurrency then%>
+              <p>Total salary (in <%-ResultCurrency%>): <%-round(WorkerPaymentInResultCurrency*TotalHours)%> <%-ResultCurrency%></p>
+              <p>Total worked salary (in <%-ResultCurrency%>): <%-round(WorkerPaymentInResultCurrency*TotalWorkedHours)%> <%-ResultCurrency%></p>
+            <%end%>
+            <%TotalSalary=TotalSalary+WorkerPaymentInResultCurrency*TotalHours%>
+            <%TotalWorkedSalary=TotalWorkedSalary+WorkerPaymentInResultCurrency*TotalWorkedHours%>
+          </div>
+        </div>
+      </div>
+      <%end%>
+    </div>
+    <div class="alert alert-success my-1 mx-1" role="alert">
+      <p>Total salary: <%-round(TotalSalary)%> <%-ResultCurrency%></p>
+      <p>Total worked salary: <%-round(TotalWorkedSalary)%> <%-ResultCurrency%></p>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  </body>
+</html>
