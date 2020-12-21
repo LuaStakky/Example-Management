@@ -4,7 +4,7 @@ This examle writed for [LuaStakky](https://github.com/LuaStakky/LuaStakky) proje
 
 GUI for it you can find [here](https://github.com/LuaStakky/Example-Management-DesktopGUI).
 
-Import InsomniaAPIRef.json into Insomnia to see API Ref of project and test it.
+Import `InsomniaAPIRef.json` into Insomnia to see API Ref of project and test it.
 
 ## What can do this project?
 
