@@ -26,11 +26,11 @@ Import `InsomniaAPIRef.json` into Insomnia to see API Ref of project and test it
 1. Write CERTIFICATE and PRIVATE KEY into Certificates file
 2. Rewrite security section in like this stakky.yaml
 
-    security:
-      allow_http: false
-      allow_https: true
-      ssl_certificates_file: Certificates
-      ssl_session_cache: 10 
+        security:
+          allow_http: false
+          allow_https: true
+          ssl_certificates_file: Certificates
+          ssl_session_cache: 10 
       
 ## default user:
 
