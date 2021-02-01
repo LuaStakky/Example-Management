@@ -37,4 +37,4 @@ Import `InsomniaAPIRef.json` into Insomnia to see API Ref of project and test it
 email: examlpe@examlpe.com
 password: toor
 
-for cofigurate see `TarantoolApp\Users\_private\init.lua`
+for configurate see `TarantoolApp\Users\_private\init.lua`
